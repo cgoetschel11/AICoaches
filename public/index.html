@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Custom Chatbot</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #111;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .header {
+      background: #1a1a1a;
+      padding: 1rem;
+      border-bottom: 1px solid #333;
+    }
+
+    .header a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .message {
+      margin: 0.5rem 0;
+      white-space: pre-wrap;
+    }
+
+    .user {
+      text-align: right;
+    }
+
+    .assistant {
+      text-align: left;
+    }
+
+    .input-box {
+      display: flex;
+      border-top: 1px solid #333;
+    }
+
+    input {
+      flex: 1;
+      padding: 1rem;
+      border: none;
+      background: #222;
+      color: white;
+    }
+
+    button {
+      padding: 1rem;
+      background: #333;
+      color: white;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="#">← Back</a>
+  </div>
+  <div id="chat"></div>
+  <div class="input-box">
+    <input id="input" placeholder="Type your message..." />
+    <button onclick="send()">Send</button>
+  </div>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("input");
+
+    let messages = [];
+
+    async function send() {
+      const userMessage = input.value.trim();
+      if (!userMessage) return;
+      input.value = "";
+
+      messages.push({ role: "user", content: userMessage });
+      render();
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages,
+          assistant_id: "asst_Z9rv5tQj8DmSoJrKX9wPl3Ss"
+        })
+      });
+
+      const data = await response.json();
+      messages.push({ role: "assistant", content: data.reply });
+      render();
+    }
+
+    function render() {
+      chat.innerHTML = messages.map(msg => `
+        <div class="message ${msg.role}">
+          ${msg.content}
+        </div>
+      `).join("");
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>
